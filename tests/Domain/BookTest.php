@@ -28,15 +28,21 @@ function aBook(int $total = 3): Book
     );
 }
 
-it('accepts a 13 digit ISBN and rejects anything else', function (string $raw, bool $valid) {
-    $book = Book::register('b', 'T', 'A', $raw, 'c', 1);
+it('accepts exactly 13 digits in the ISBN (CA-03.2)', function () {
+    $book = Book::register('b', 'T', 'A', '9780307474728', 'c', 1);
 
-    expect($valid)->toBe($book->isbn()->value === $raw);
+    expect($book->isbn()->value)->toBe('9780307474728');
+});
+
+it('rejects an ISBN that is not 13 digits (CA-03.2)', function (string $raw) {
+    expect(fn () => Book::register('b', 'T', 'A', $raw, 'c', 1))
+        ->toThrow(InvalidIsbn::class);
 })->with([
-    ['9780307474728', true],
-    ['978030747472', false],    // 12 digits
-    ['97803074747289', false],  // 14 digits
-    ['97803074747X8', false],   // not a digit
+    ['978030747472'],    // 12 digits
+    ['97803074747289'],  // 14 digits
+    ['97803074747X8'],   // not a digit
+    [' 978030747472 '], // not trimmed before validation
+    [''],                // empty
 ]);
 
 it('throws InvalidIsbn outside the domain vocabulary', function () {

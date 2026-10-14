@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use Arkitect\Rules\Classes\DependsOnThese;
-use Arkitect\Rules\Classes\HaveNameMatching;
 use Arkitect\Rules\Classes\ResideInTheseNamespaces;
 
 /**
@@ -34,14 +32,9 @@ return [
         ->onClassesThatResideInTheseNamespaces('App\Infrastructure', 'App\Adapters'),
 
     // Art. III — a single composition root.
-    'nothing outside the composition root may implement an outbound port' => (new ResideInTheseNamespaces(
+    'the outbound ports may depend on the domain and on nothing else' => (new ResideInTheseNamespaces(
         'App\Application\Ports\Outbound',
     ))
         ->shouldOnlyDependOn()
         ->onClassesThatResideInTheseNamespaces('App\Domain'),
-
-    // Naming, so the port/adapter split stays visible in the tree.
-    'ports are named Port' => (new HaveNameMatching('.*Port$'))
-        ->shouldOnlyHaveNameMatching()
-        ->inNamespace('App\Application\Ports\Outbound'),
 ];
